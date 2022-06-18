@@ -6,3 +6,9 @@ pub struct SourcePosition {
     // the column number
     pub col: usize,
 }
+
+impl Default for SourcePosition {
+    fn default() -> Self {
+        SourcePosition { line: 1, col: 0 }
+    }
+}

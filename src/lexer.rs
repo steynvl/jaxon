@@ -116,7 +116,7 @@ impl Lexer {
             ch: ' ',
             index: 0,
             column_number: 0,
-            source_position: SourcePosition { line: 1, col: 0 },
+            source_position: SourcePosition::default(),
         }
     }
 
