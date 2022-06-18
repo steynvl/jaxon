@@ -120,5 +120,17 @@ impl Lexer {
         }
     }
 
-    pub fn get_token(&self, token: &mut Token) {}
+    pub fn get_token(&mut self, token: &mut Token) {
+        self.skip_whitespace();
+    }
+
+    fn skip_whitespace(&mut self) {
+        while self.index < self.bytes.len() {
+            if self.bytes[self.index] == b' ' {
+                self.index += 1;
+            } else {
+                break
+            }
+        }
+    }
 }
