@@ -61,6 +61,25 @@ pub enum Token {
     Semicolon,
 }
 
-pub fn lex() -> Vec<Token> {
-    vec![Token::Eof]
+pub struct Lexer {
+    // the next source character
+    ch: char,
+
+    // the current index in the source
+    index: usize,
+
+    // the current column number
+    column_number: usize,
+}
+
+impl Lexer {
+    pub fn new(bytes: &[u8]) -> Self {
+        Lexer {
+            ch: ' ',
+            index: 0,
+            column_number: 0,
+        }
+    }
+
+    pub fn get_token(&self, token: &mut Token) {}
 }
