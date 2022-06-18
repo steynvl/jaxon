@@ -1,73 +1,11 @@
 use crate::error::SourcePosition;
+use crate::token::Token;
 
 // the maximum length of an identifier
 const MAX_ID_LENGTH: usize = 32;
 
-#[derive(Debug, PartialEq)]
-pub enum Token {
-    // end-of-file
-    Eof,
-    // identifier
-    Id(String),
-    // number literal
-    Number(i32),
-    // string literal
-    String(String),
-
-    // keywords
-    Array,
-    Begin,
-    Boolean,
-    Call,
-    Do,
-    Else,
-    Elsif,
-    End,
-    False,
-    Function,
-    Get,
-    If,
-    Integer,
-    Leave,
-    Not,
-    Put,
-    Relax,
-    Source,
-    Then,
-    To,
-    True,
-    While,
-
-    // relational operators
-    Equal,
-    GreaterEqual,
-    GreaterThan,
-    LessEqual,
-    LessThan,
-    NotEqual,
-
-    // additive operators
-    Minus,
-    Or,
-    Plus,
-
-    // multiplicative operators
-    And,
-    Divide,
-    Multiply,
-    Remainder,
-
-    /* other non-alphabetic operators */
-    CloseBracket,
-    CloseParenthesis,
-    Comma,
-    Concatenate,
-    Gets,
-    OpenBracket,
-    OpenParenthesis,
-    Semicolon,
-}
-
+// an array of reserved keywords and its corresponding Token. The array should
+// be sorted since Lexer::process_word performs binary search on the array.
 const RESERVED_WORDS: &'static [(&str, Token)] = &[
     ("and", Token::And),
     ("array", Token::Array),
