@@ -1,38 +1,5 @@
 use crate::error::SourcePosition;
-use crate::token::Token;
-
-// the maximum length of an identifier
-const MAX_ID_LENGTH: usize = 32;
-
-// an array of reserved keywords and its corresponding Token. The array should
-// be sorted since Lexer::process_word performs binary search on the array.
-const RESERVED_WORDS: &'static [(&str, Token)] = &[
-    ("and", Token::And),
-    ("array", Token::Array),
-    ("begin", Token::Begin),
-    ("boolean", Token::Boolean),
-    ("call", Token::Call),
-    ("do", Token::Do),
-    ("else", Token::Else),
-    ("elsif", Token::Elsif),
-    ("end", Token::End),
-    ("false", Token::False),
-    ("function", Token::Function),
-    ("get", Token::Get),
-    ("if", Token::If),
-    ("integer", Token::Integer),
-    ("leave", Token::Leave),
-    ("not", Token::Not),
-    ("or", Token::Or),
-    ("put", Token::Put),
-    ("relax", Token::Relax),
-    ("rem", Token::Remainder),
-    ("source", Token::Source),
-    ("then", Token::Then),
-    ("to", Token::To),
-    ("true", Token::True),
-    ("while", Token::While),
-];
+use crate::token::{Token, MAX_ID_LENGTH, RESERVED_WORDS};
 
 pub struct Lexer<'a> {
     // the source file contents
