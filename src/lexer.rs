@@ -1,5 +1,9 @@
 use crate::error::SourcePosition;
 
+// the maximum length of an identifier
+const MAX_ID_LENGTH: usize = 32;
+
+#[derive(Debug, PartialEq)]
 pub enum Token {
     // end-of-file
     Eof,
@@ -92,11 +96,11 @@ const RESERVED_WORDS: &'static [(&str, Token)] = &[
     ("while", Token::While),
 ];
 
-pub struct Lexer {
+pub struct Lexer<'a> {
     // the source file contents
-    bytes: Box<[u8]>,
+    bytes: &'a [u8],
 
-    // the next source character
+    // the next character in the source
     ch: u8,
 
     // the last character that was read
@@ -112,12 +116,12 @@ pub struct Lexer {
     source_position: SourcePosition,
 }
 
-impl Lexer {
-    pub fn new(bytes: Box<[u8]>) -> Self {
+impl<'a> Lexer<'a> {
+    pub fn new(bytes: &'a [u8]) -> Self {
         Lexer {
             bytes: bytes,
-            ch: b'\0',
-            last_read: b'\0',
+            ch: bytes[0],
+            last_read: bytes[0],
             index: 0,
             column_number: 0,
             source_position: SourcePosition::default(),
@@ -126,7 +130,7 @@ impl Lexer {
 
     pub fn get_token(&mut self, token: &mut Token) {
         self.skip_whitespace();
-        
+
         // remember token start
         self.source_position.col = self.column_number;
 
@@ -135,6 +139,12 @@ impl Lexer {
             return;
         }
 
+        if self.ch.is_ascii_alphanumeric() || self.ch == b'_' {
+            self.process_word(token);
+        } else if self.ch.is_ascii_digit() {
+            todo!("process_number()")
+        } else {
+        }
     }
 
     fn next_char(&mut self) {
@@ -150,7 +160,37 @@ impl Lexer {
     }
 
     fn has_next_char(&self) -> bool {
-        self.index < self.bytes.len() - 1
+        self.index < self.bytes.len()
+    }
+
+    fn process_word(&mut self, token: &mut Token) {
+        self.source_position.col = self.column_number;
+
+        let start = self.index;
+        let mut i = 0;
+
+        let is_alphanum_or_lodash = |ch: &u8| -> bool { ch.is_ascii_alphanumeric() || *ch == b'_' };
+
+        while is_alphanum_or_lodash(&self.ch) && i < MAX_ID_LENGTH {
+            i += 1;
+            self.next_char();
+
+            if !self.has_next_char() {
+                break;
+            }
+        }
+
+        if is_alphanum_or_lodash(&self.ch) && i == MAX_ID_LENGTH {
+            // TODO: abort compile
+            panic!("identifier too long");
+        }
+
+        let lexeme = match std::str::from_utf8(&self.bytes[start..start + i]) {
+            Ok(value) => value,
+            Err(err) => panic!("Invalid UTF-8 sequence {}", err),
+        };
+
+        *token = Token::Id(String::from(lexeme));
     }
 
     fn skip_whitespace(&mut self) {
@@ -158,7 +198,7 @@ impl Lexer {
             if self.bytes[self.index] == b' ' {
                 self.next_char();
             } else {
-                break
+                break;
             }
         }
     }
