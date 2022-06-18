@@ -12,6 +12,7 @@ fn main() {
 
     let mut lexer = Lexer::new(source.as_bytes());
     let mut token: Token = Token::Array;
+
     lexer.get_token(&mut token);
-    assert!(token == Token::Id(String::from("word")));
+    assert!(token == Token::Function);
 }

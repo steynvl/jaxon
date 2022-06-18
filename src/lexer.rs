@@ -128,7 +128,11 @@ impl<'a> Lexer<'a> {
             Err(err) => panic!("Invalid UTF-8 sequence {}", err),
         };
 
-        *token = Token::Id(String::from(lexeme));
+        match RESERVED_WORDS.binary_search_by_key(&lexeme, |(raw_str, _)| raw_str) {
+            // TODO: way to index in RESERVED_WORDS and create the specific token
+            Ok(index) => *token = Token::Function,
+            Err(_) => *token = Token::Id(String::from(lexeme)),
+        };
     }
 
     fn skip_whitespace(&mut self) {
