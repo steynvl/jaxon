@@ -1,3 +1,5 @@
+use crate::error::SourcePosition;
+
 pub enum Token {
     // end-of-file
     Eof,
@@ -91,6 +93,9 @@ const RESERVED_WORDS: &'static [(&str, Token)] = &[
 ];
 
 pub struct Lexer {
+    // the source file contents
+    bytes: Box<[u8]>,
+
     // the next source character
     ch: char,
 
@@ -99,14 +104,19 @@ pub struct Lexer {
 
     // the current column number
     column_number: usize,
+
+    // a place (or position) in the source file
+    source_position: SourcePosition,
 }
 
 impl Lexer {
-    pub fn new(bytes: &[u8]) -> Self {
+    pub fn new(bytes: Box<[u8]>) -> Self {
         Lexer {
+            bytes: bytes,
             ch: ' ',
             index: 0,
             column_number: 0,
+            source_position: SourcePosition { line: 1, col: 0 },
         }
     }
 
