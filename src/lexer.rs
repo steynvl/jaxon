@@ -11,6 +11,7 @@ pub enum Token {
     // keywords
     Array,
     Begin,
+    Boolean,
     Call,
     Do,
     Else,
@@ -60,6 +61,34 @@ pub enum Token {
     OpenParenthesis,
     Semicolon,
 }
+
+const RESERVED_WORDS: &'static [(&str, Token)] = &[
+    ("and", Token::And),
+    ("array", Token::Array),
+    ("begin", Token::Begin),
+    ("boolean", Token::Boolean),
+    ("call", Token::Call),
+    ("do", Token::Do),
+    ("else", Token::Else),
+    ("elsif", Token::Elsif),
+    ("end", Token::End),
+    ("false", Token::False),
+    ("function", Token::Function),
+    ("get", Token::Get),
+    ("if", Token::If),
+    ("integer", Token::Integer),
+    ("leave", Token::Leave),
+    ("not", Token::Not),
+    ("or", Token::Or),
+    ("put", Token::Put),
+    ("relax", Token::Relax),
+    ("rem", Token::Remainder),
+    ("source", Token::Source),
+    ("then", Token::Then),
+    ("to", Token::To),
+    ("true", Token::True),
+    ("while", Token::While),
+];
 
 pub struct Lexer {
     // the next source character
