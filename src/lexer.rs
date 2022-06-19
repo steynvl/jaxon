@@ -44,17 +44,23 @@ impl<'a> Lexer<'a> {
             return;
         }
 
-        if self.ch.is_ascii_alphanumeric() || self.ch == b'_' {
+        println!(
+            "{} / {} [{}]",
+            self.index,
+            self.bytes.len(),
+            self.bytes[self.index] as char
+        );
+        if self.ch.is_ascii_alphabetic() || self.ch == b'_' {
             self.process_word(token);
         } else if self.ch.is_ascii_digit() {
-            todo!("process_number()")
+            self.process_number(token);
         } else {
         }
     }
 
     fn next_char(&mut self) {
-        self.ch = self.bytes[self.index];
         self.index += 1;
+        self.ch = self.bytes[self.index];
 
         self.column_number += 1;
         if self.last_read == b'\n' {
@@ -65,7 +71,34 @@ impl<'a> Lexer<'a> {
     }
 
     fn has_next_char(&self) -> bool {
-        self.index < self.bytes.len()
+        self.index + 1 < self.bytes.len()
+    }
+
+    fn process_number(&mut self, token: &mut Token) {
+        let mut final_value = 0;
+
+        self.source_position.col = self.column_number;
+
+        while self.ch.is_ascii_digit() {
+            let digit = (self.ch as char)
+                .to_digit(10)
+                .expect("Could not convert to a digit") as i32;
+
+            if final_value <= ((i32::MAX - digit) / 10) {
+                final_value = final_value * 10 + digit;
+
+                if !self.has_next_char() {
+                    break;
+                }
+
+                self.next_char();
+            } else {
+                // TODO: abort compile
+                panic!("number too large");
+            }
+        }
+
+        *token = Token::Number(final_value);
     }
 
     fn process_word(&mut self, token: &mut Token) {
@@ -78,12 +111,11 @@ impl<'a> Lexer<'a> {
 
         loop {
             self.next_char();
+            id_length += 1;
 
             if !(is_alphanum_or_lodash(&self.ch) && id_length < MAX_ID_LENGTH) {
                 break;
             }
-
-            id_length += 1;
 
             if !self.has_next_char() {
                 break;
@@ -101,7 +133,6 @@ impl<'a> Lexer<'a> {
         };
 
         match RESERVED_WORDS.binary_search_by_key(&lexeme, |(raw_str, _)| raw_str) {
-            // TODO: way to index in RESERVED_WORDS and create the specific token
             Ok(index) => *token = create_token_from_reserved_words_index(index),
             Err(_) => *token = Token::Id(String::from(lexeme)),
         };
