@@ -18,7 +18,7 @@ pub struct Lexer<'a> {
     column_number: usize,
 
     // a place (or position) in the source file
-    source_position: SourcePosition,
+    position: SourcePosition,
 }
 
 impl<'a> Lexer<'a> {
@@ -30,7 +30,7 @@ impl<'a> Lexer<'a> {
             last_read: initial_ch,
             index: 0,
             column_number: 0,
-            source_position: SourcePosition::new(1, 0),
+            position: SourcePosition::default(),
         }
     }
 
@@ -38,7 +38,7 @@ impl<'a> Lexer<'a> {
         self.skip_whitespace();
 
         // remember token start
-        self.source_position.col = self.column_number;
+        self.position.col = self.column_number;
 
         if !self.has_next_char() {
             *token = Token::Eof;
@@ -58,7 +58,7 @@ impl<'a> Lexer<'a> {
         } else {
             match self.ch {
                 b'"' => {
-                    self.source_position.col = self.column_number;
+                    self.position.col = self.column_number;
                     self.next_char();
                     self.process_string(token);
                 }
@@ -121,7 +121,7 @@ impl<'a> Lexer<'a> {
                         *token = Token::Gets;
                         self.next_char();
                     } else {
-                        self.source_position.col = self.column_number - 1;
+                        self.position.col = self.column_number - 1;
                         panic!("illegal character ':' (ASCII {})", b':')
                     }
                 }
@@ -149,7 +149,7 @@ impl<'a> Lexer<'a> {
                     }
                 }
                 _ => {
-                    self.source_position.col = self.column_number;
+                    self.position.col = self.column_number;
                     // TODO: abort compile
                     panic!(
                         "illegal character '{}' (ASCII {})",
@@ -166,7 +166,7 @@ impl<'a> Lexer<'a> {
 
         self.column_number += 1;
         if self.last_read == b'\n' {
-            self.source_position.line += 1;
+            self.position.line += 1;
             self.column_number = 1;
         }
         self.last_read = self.ch;
@@ -179,7 +179,7 @@ impl<'a> Lexer<'a> {
     fn process_number(&mut self, token: &mut Token) {
         let mut final_value = 0;
 
-        self.source_position.col = self.column_number;
+        self.position.col = self.column_number;
 
         while self.ch.is_ascii_digit() {
             let digit = (self.ch as char)
@@ -217,7 +217,7 @@ impl<'a> Lexer<'a> {
 
             if !self.ch.is_ascii() {
                 // force token start
-                self.source_position.col = self.column_number;
+                self.position.col = self.column_number;
                 panic!("non-printable character (ASCII {}) in string", self.ch);
             } else if self.ch == b'\\' {
                 self.next_char();
@@ -227,7 +227,7 @@ impl<'a> Lexer<'a> {
                     b'\\' => string_literal.push('\\'),
                     _ => {
                         // force token start
-                        self.source_position.col = self.column_number;
+                        self.position.col = self.column_number;
                         panic!("illegal escape code '{}' in string", self.ch as char)
                     }
                 }
@@ -247,7 +247,7 @@ impl<'a> Lexer<'a> {
     }
 
     fn process_word(&mut self, token: &mut Token) {
-        self.source_position.col = self.column_number;
+        self.position.col = self.column_number;
 
         let start = self.index;
         let mut id_length = 0;
@@ -285,9 +285,9 @@ impl<'a> Lexer<'a> {
 
     fn skip_comment(&mut self, token: &mut Token) {
         // remember the entire position
-        self.source_position.col = self.column_number - 1;
+        self.position.col = self.column_number - 1;
 
-        let start_pos = self.source_position;
+        let start_pos = self.position;
 
         while self.has_next_char() {
             if self.ch == b'{' {
@@ -302,7 +302,7 @@ impl<'a> Lexer<'a> {
         }
 
         // force line number of error reporting
-        self.source_position = start_pos;
+        self.position = start_pos;
         panic!("comment not closed");
     }
 
