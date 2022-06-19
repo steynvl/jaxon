@@ -115,6 +115,16 @@ impl<'a> Lexer<'a> {
                     *token = Token::OpenParenthesis;
                     self.next_char();
                 }
+                b':' => {
+                    self.next_char();
+                    if self.ch == b'=' {
+                        *token = Token::Gets;
+                        self.next_char();
+                    } else {
+                        self.source_position.col = self.column_number - 1;
+                        panic!("illegal character ':' (ASCII {})", b':')
+                    }
+                }
                 _ => todo!("{}", self.ch as char),
             }
         }
