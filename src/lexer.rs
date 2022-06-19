@@ -111,10 +111,8 @@ impl<'a> Lexer<'a> {
 
     fn process_string(&mut self, token: &mut Token) {
         let mut string_literal = String::default();
-        println!("in process_string");
 
         loop {
-            println!("ch = {}", self.ch as char);
             if self.ch == b'"' {
                 *token = Token::StringLiteral(string_literal);
                 if self.has_next_char() {
