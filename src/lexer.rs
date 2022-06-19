@@ -72,30 +72,30 @@ impl<'a> Lexer<'a> {
         self.source_position.col = self.column_number;
 
         let start = self.index;
-        let mut i = 0;
+        let mut id_length = 0;
 
         let is_alphanum_or_lodash = |ch: &u8| ch.is_ascii_alphanumeric() || *ch == b'_';
 
         loop {
             self.next_char();
 
-            if !(is_alphanum_or_lodash(&self.ch) && i < MAX_ID_LENGTH) {
+            if !(is_alphanum_or_lodash(&self.ch) && id_length < MAX_ID_LENGTH) {
                 break;
             }
 
-            i += 1;
+            id_length += 1;
 
             if !self.has_next_char() {
                 break;
             }
         }
 
-        if is_alphanum_or_lodash(&self.ch) && i == MAX_ID_LENGTH {
+        if is_alphanum_or_lodash(&self.ch) && id_length == MAX_ID_LENGTH {
             // TODO: abort compile
             panic!("identifier too long");
         }
 
-        let lexeme = match std::str::from_utf8(&self.bytes[start..start + i]) {
+        let lexeme = match std::str::from_utf8(&self.bytes[start..start + id_length]) {
             Ok(value) => value,
             Err(err) => panic!("Invalid UTF-8 sequence {}", err),
         };
