@@ -65,7 +65,55 @@ impl<'a> Lexer<'a> {
                     self.next_char();
                     self.skip_comment(token);
                     self.get_token(token);
-                }
+                },
+                b']' => {
+                    *token = Token::CloseBracket;
+                    self.next_char();
+                },
+                b')' => {
+                    *token = Token::CloseParenthesis;
+                    self.next_char();
+                },
+                b',' => {
+                    *token = Token::Comma;
+                    self.next_char();
+                },
+                b'/' => {
+                    *token = Token::Divide;
+                    self.next_char();
+                },
+                b'.' => {
+                    *token = Token::Concatenate;
+                    self.next_char();
+                },
+                b'=' => {
+                    *token = Token::Equal;
+                    self.next_char();
+                },
+                b'[' => {
+                    *token = Token::OpenBracket;
+                    self.next_char();
+                },
+                b'*' => {
+                    *token = Token::Multiply;
+                    self.next_char();
+                },
+                b'+' => {
+                    *token = Token::Plus;
+                    self.next_char();
+                },
+                b';' => {
+                    *token = Token::Semicolon;
+                    self.next_char();
+                },
+                b'-' => {
+                    *token = Token::Minus;
+                    self.next_char();
+                },
+                b'(' => {
+                    *token = Token::OpenParenthesis;
+                    self.next_char();
+                },
                 _ => todo!("{}", self.ch as char),
             }
         }
