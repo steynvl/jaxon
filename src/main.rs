@@ -23,5 +23,9 @@ fn main() {
 
     lexer.get_token(&mut token);
     println!("{:?}", token);
-    assert!(token == Token::Number(1235))
+    assert!(token == Token::Number(1235));
+
+    lexer.get_token(&mut token);
+    println!("{:?}", token);
+    assert!(token == Token::StringLiteral(String::from("string")))
 }

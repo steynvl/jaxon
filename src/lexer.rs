@@ -55,6 +55,14 @@ impl<'a> Lexer<'a> {
         } else if self.ch.is_ascii_digit() {
             self.process_number(token);
         } else {
+            match self.ch {
+                b'"' => {
+                    self.source_position.col = self.column_number;
+                    self.next_char();
+                    self.process_string(token);
+                }
+                _ => todo!("{}", self.ch as char),
+            }
         }
     }
 
@@ -99,6 +107,51 @@ impl<'a> Lexer<'a> {
         }
 
         *token = Token::Number(final_value);
+    }
+
+    fn process_string(&mut self, token: &mut Token) {
+        let mut string_literal = String::default();
+        println!("in process_string");
+
+        loop {
+            println!("ch = {}", self.ch as char);
+            if self.ch == b'"' {
+                *token = Token::StringLiteral(string_literal);
+                if self.has_next_char() {
+                    self.next_char();
+                }
+                return;
+            }
+
+            if !self.ch.is_ascii() {
+                // force token start
+                self.source_position.col = self.column_number;
+                panic!("non-printable character (ASCII {}) in string", self.ch);
+            } else if self.ch == b'\\' {
+                self.next_char();
+
+                match self.ch {
+                    b'n' | b't' | b'"' => (),
+                    b'\\' => string_literal.push_str("\\"),
+                    _ => {
+                        // force token start
+                        self.source_position.col = self.column_number;
+                        panic!("illegal escape code '{}' in string", self.ch as char)
+                    }
+                }
+            }
+
+            string_literal.push_str(&(self.ch as char).to_string());
+
+            if !self.has_next_char() {
+                break;
+            }
+
+            self.next_char();
+        }
+
+        // TODO: abort compile
+        panic!("string not closed");
     }
 
     fn process_word(&mut self, token: &mut Token) {
