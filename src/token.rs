@@ -52,7 +52,7 @@ pub enum Token {
     Multiply,
     Remainder,
 
-    /* other non-alphabetic operators */
+    // other non-alphabetic operators
     CloseBracket,
     CloseParenthesis,
     Comma,
