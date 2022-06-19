@@ -10,10 +10,7 @@ pub struct SourcePosition {
 
 impl SourcePosition {
     pub fn new(line: usize, col: usize) -> Self {
-        SourcePosition {
-            line: line,
-            col: col,
-        }
+        SourcePosition { line, col }
     }
 }
 

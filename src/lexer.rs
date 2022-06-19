@@ -25,7 +25,7 @@ impl<'a> Lexer<'a> {
     pub fn new(bytes: &'a [u8]) -> Self {
         let initial_ch = if bytes.is_empty() { b'\0' } else { bytes[0] };
         Lexer {
-            bytes: bytes,
+            bytes,
             ch: initial_ch,
             last_read: initial_ch,
             index: 0,
@@ -224,7 +224,7 @@ impl<'a> Lexer<'a> {
 
                 match self.ch {
                     b'n' | b't' | b'"' => (),
-                    b'\\' => string_literal.push_str("\\"),
+                    b'\\' => string_literal.push('\\'),
                     _ => {
                         // force token start
                         self.source_position.col = self.column_number;

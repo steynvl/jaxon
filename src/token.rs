@@ -68,7 +68,7 @@ pub const MAX_ID_LENGTH: usize = 32;
 
 // an array of reserved keywords and its corresponding Token. The array should
 // be sorted since Lexer::process_word performs binary search on the array.
-pub const RESERVED_WORDS: &'static [(&str, Token)] = &[
+pub const RESERVED_WORDS: &[(&str, Token)] = &[
     ("and", Token::And),
     ("array", Token::Array),
     ("begin", Token::Begin),
@@ -99,7 +99,7 @@ pub const RESERVED_WORDS: &'static [(&str, Token)] = &[
 pub fn create_token_from_reserved_words_index(index: usize) -> Token {
     assert!(index < RESERVED_WORDS.len());
 
-    return match RESERVED_WORDS[index].1 {
+    match RESERVED_WORDS[index].1 {
         Token::And => Token::And,
         Token::Array => Token::Array,
         Token::Begin => Token::Begin,
@@ -126,5 +126,5 @@ pub fn create_token_from_reserved_words_index(index: usize) -> Token {
         Token::True => Token::True,
         Token::While => Token::While,
         _ => unreachable!(),
-    };
+    }
 }
