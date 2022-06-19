@@ -5,10 +5,10 @@ pub struct Lexer<'a> {
     // the source file contents
     bytes: &'a [u8],
 
-    // the next character in the source
+    // the next byte in the source
     ch: u8,
 
-    // the last character that was read
+    // the last byte that was read from the source
     last_read: u8,
 
     // the current index in the source
@@ -23,10 +23,11 @@ pub struct Lexer<'a> {
 
 impl<'a> Lexer<'a> {
     pub fn new(bytes: &'a [u8]) -> Self {
+        let initial_ch = if bytes.is_empty() { b'\0' } else { bytes[0] };
         Lexer {
             bytes: bytes,
-            ch: bytes[0],
-            last_read: bytes[0],
+            ch: initial_ch,
+            last_read: initial_ch,
             index: 0,
             column_number: 0,
             source_position: SourcePosition::new(1, 0),
