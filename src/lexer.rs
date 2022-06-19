@@ -134,6 +134,20 @@ impl<'a> Lexer<'a> {
                         *token = Token::GreaterThan;
                     }
                 }
+                b'<' => {
+                    self.next_char();
+                    match self.ch {
+                        b'=' => {
+                            *token = Token::LessEqual;
+                            self.next_char();
+                        }
+                        b'>' => {
+                            *token = Token::NotEqual;
+                            self.next_char();
+                        }
+                        _ => *token = Token::LessThan,
+                    }
+                }
                 _ => todo!("{}", self.ch as char),
             }
         }
