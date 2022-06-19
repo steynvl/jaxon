@@ -29,7 +29,7 @@ impl<'a> Lexer<'a> {
             last_read: bytes[0],
             index: 0,
             column_number: 0,
-            source_position: SourcePosition::default(),
+            source_position: SourcePosition::new(1, 0),
         }
     }
 
@@ -60,6 +60,11 @@ impl<'a> Lexer<'a> {
                     self.source_position.col = self.column_number;
                     self.next_char();
                     self.process_string(token);
+                }
+                b'{' => {
+                    self.next_char();
+                    self.skip_comment(token);
+                    self.get_token(token);
                 }
                 _ => todo!("{}", self.ch as char),
             }
@@ -187,6 +192,13 @@ impl<'a> Lexer<'a> {
             Ok(index) => *token = create_token_from_reserved_words_index(index),
             Err(_) => *token = Token::Id(String::from(lexeme)),
         };
+    }
+
+    fn skip_comment(&mut self, token: &mut Token) {
+        // remember the entire position
+        self.source_position.col = self.column_number - 1;
+
+        let start_pos = self.source_position;
     }
 
     fn skip_whitespace(&mut self) {

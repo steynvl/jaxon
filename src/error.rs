@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, Copy)]
 // a place (or position) in the source file
 pub struct SourcePosition {
     // the line number
@@ -5,6 +6,15 @@ pub struct SourcePosition {
 
     // the column number
     pub col: usize,
+}
+
+impl SourcePosition {
+    pub fn new(line: usize, col: usize) -> Self {
+        SourcePosition {
+            line: line,
+            col: col,
+        }
+    }
 }
 
 impl Default for SourcePosition {
