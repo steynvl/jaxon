@@ -148,7 +148,14 @@ impl<'a> Lexer<'a> {
                         _ => *token = Token::LessThan,
                     }
                 }
-                _ => todo!("{}", self.ch as char),
+                _ => {
+                    self.source_position.col = self.column_number;
+                    // TODO: abort compile
+                    panic!(
+                        "illegal character '{}' (ASCII {})",
+                        self.ch as char, self.ch
+                    )
+                }
             }
         }
     }
