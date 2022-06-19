@@ -125,6 +125,15 @@ impl<'a> Lexer<'a> {
                         panic!("illegal character ':' (ASCII {})", b':')
                     }
                 }
+                b'>' => {
+                    self.next_char();
+                    if self.ch == b'=' {
+                        *token = Token::GreaterEqual;
+                        self.next_char();
+                    } else {
+                        *token = Token::GreaterThan;
+                    }
+                }
                 _ => todo!("{}", self.ch as char),
             }
         }
