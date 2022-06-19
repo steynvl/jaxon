@@ -199,6 +199,22 @@ impl<'a> Lexer<'a> {
         self.source_position.col = self.column_number - 1;
 
         let start_pos = self.source_position;
+
+        while self.has_next_char() {
+            if self.ch == b'{' {
+                self.next_char();
+                self.skip_comment(token);
+            } else if self.ch == b'}' {
+                self.next_char();
+                return;
+            } else {
+                self.next_char();
+            }
+        }
+
+        // force line number of error reporting
+        self.source_position = start_pos;
+        panic!("comment not closed");
     }
 
     fn skip_whitespace(&mut self) {
