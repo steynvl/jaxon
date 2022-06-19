@@ -95,3 +95,36 @@ pub const RESERVED_WORDS: &'static [(&str, Token)] = &[
     ("true", Token::True),
     ("while", Token::While),
 ];
+
+pub fn create_token_from_reserved_words_index(index: usize) -> Token {
+    assert!(index < RESERVED_WORDS.len());
+
+    return match RESERVED_WORDS[index].1 {
+        Token::And => Token::And,
+        Token::Array => Token::Array,
+        Token::Begin => Token::Begin,
+        Token::Boolean => Token::Boolean,
+        Token::Call => Token::Call,
+        Token::Do => Token::Do,
+        Token::Else => Token::Else,
+        Token::Elsif => Token::Elsif,
+        Token::End => Token::End,
+        Token::False => Token::False,
+        Token::Function => Token::Function,
+        Token::Get => Token::Get,
+        Token::If => Token::If,
+        Token::Integer => Token::Integer,
+        Token::Leave => Token::Leave,
+        Token::Not => Token::Not,
+        Token::Or => Token::Or,
+        Token::Put => Token::Put,
+        Token::Relax => Token::Relax,
+        Token::Remainder => Token::Remainder,
+        Token::Source => Token::Source,
+        Token::Then => Token::Then,
+        Token::To => Token::To,
+        Token::True => Token::True,
+        Token::While => Token::While,
+        _ => unreachable!(),
+    };
+}

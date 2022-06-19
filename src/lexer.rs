@@ -1,5 +1,5 @@
 use crate::error::SourcePosition;
-use crate::token::{Token, MAX_ID_LENGTH, RESERVED_WORDS};
+use crate::token::{create_token_from_reserved_words_index, Token, MAX_ID_LENGTH, RESERVED_WORDS};
 
 pub struct Lexer<'a> {
     // the source file contents
@@ -74,11 +74,16 @@ impl<'a> Lexer<'a> {
         let start = self.index;
         let mut i = 0;
 
-        let is_alphanum_or_lodash = |ch: &u8| -> bool { ch.is_ascii_alphanumeric() || *ch == b'_' };
+        let is_alphanum_or_lodash = |ch: &u8| ch.is_ascii_alphanumeric() || *ch == b'_';
 
-        while is_alphanum_or_lodash(&self.ch) && i < MAX_ID_LENGTH {
-            i += 1;
+        loop {
             self.next_char();
+
+            if !(is_alphanum_or_lodash(&self.ch) && i < MAX_ID_LENGTH) {
+                break;
+            }
+
+            i += 1;
 
             if !self.has_next_char() {
                 break;
@@ -97,7 +102,7 @@ impl<'a> Lexer<'a> {
 
         match RESERVED_WORDS.binary_search_by_key(&lexeme, |(raw_str, _)| raw_str) {
             // TODO: way to index in RESERVED_WORDS and create the specific token
-            Ok(index) => *token = Token::Function,
+            Ok(index) => *token = create_token_from_reserved_words_index(index),
             Err(_) => *token = Token::Id(String::from(lexeme)),
         };
     }
@@ -110,5 +115,6 @@ impl<'a> Lexer<'a> {
                 break;
             }
         }
+        self.ch = self.bytes[self.index];
     }
 }
