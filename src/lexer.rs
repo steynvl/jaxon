@@ -233,7 +233,7 @@ impl<'a> Lexer<'a> {
                 }
             }
 
-            string_literal.push_str(&(self.ch as char).to_string());
+            string_literal.push(self.ch as char);
 
             if !self.has_next_char() {
                 break;
