@@ -8,12 +8,6 @@ pub struct SourcePosition {
     pub col: usize,
 }
 
-impl SourcePosition {
-    pub fn new(line: usize, col: usize) -> Self {
-        SourcePosition { line, col }
-    }
-}
-
 impl Default for SourcePosition {
     fn default() -> Self {
         SourcePosition { line: 1, col: 0 }

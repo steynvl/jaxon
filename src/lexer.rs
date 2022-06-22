@@ -172,6 +172,7 @@ impl<'a> Lexer<'a> {
         self.last_read = self.ch;
     }
 
+    #[inline(always)]
     fn has_next_char(&self) -> bool {
         self.index + 1 < self.bytes.len()
     }
