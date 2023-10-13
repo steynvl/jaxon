@@ -122,34 +122,26 @@ impl<'a> Lexer<'a> {
                     }
                 }
                 b'>' => {
-                    if !self.has_next_char() {
-                        *token = Token::GreaterThan;
-                    } else {
+                    self.next_char();
+                    if self.ch == b'=' {
+                        *token = Token::GreaterEqual;
                         self.next_char();
-                        if self.ch == b'=' {
-                            *token = Token::GreaterEqual;
-                            self.next_char();
-                        } else {
-                            *token = Token::GreaterThan;
-                        }
+                    } else {
+                        *token = Token::GreaterThan;
                     }
                 }
                 b'<' => {
-                    if !self.has_next_char() {
-                        *token = Token::LessThan;
-                    } else {
-                        self.next_char();
-                        match self.ch {
-                            b'=' => {
-                                *token = Token::LessEqual;
-                                self.next_char();
-                            }
-                            b'>' => {
-                                *token = Token::NotEqual;
-                                self.next_char();
-                            }
-                            _ => *token = Token::LessThan,
+                    self.next_char();
+                    match self.ch {
+                        b'=' => {
+                            *token = Token::LessEqual;
+                            self.next_char();
                         }
+                        b'>' => {
+                            *token = Token::NotEqual;
+                            self.next_char();
+                        }
+                        _ => *token = Token::LessThan,
                     }
                 }
                 _ => {
@@ -165,6 +157,11 @@ impl<'a> Lexer<'a> {
     }
 
     fn next_char(&mut self) {
+        if !self.has_next_char() {
+            self.ch = b'\0';
+            return;
+        }
+
         self.index += 1;
         self.ch = self.bytes[self.index];
 
@@ -351,6 +348,38 @@ mod tests {
             Token::GreaterThan,
         ];
 
+        for expected_token in expected_tokens {
+            lexer.get_token(&mut token);
+            assert_eq!(token, expected_token);
+        }
+    }
+
+    #[test]
+    fn test_consuming_all_operators() {
+        let input = "= >= > <= < <> - + / * ] ) , . := [ ( ;".as_bytes();
+        let mut lexer = Lexer::new(input);
+        let mut token: Token = Token::Eof;
+
+        let expected_tokens = vec![
+            Token::Equal,
+            Token::GreaterEqual,
+            Token::GreaterThan,
+            Token::LessEqual,
+            Token::LessThan,
+            Token::NotEqual,
+            Token::Minus,
+            Token::Plus,
+            Token::Divide,
+            Token::Multiply,
+            Token::CloseBracket,
+            Token::CloseParenthesis,
+            Token::Comma,
+            Token::Concatenate,
+            Token::Gets,
+            Token::OpenBracket,
+            Token::OpenParenthesis,
+            Token::Semicolon,
+        ];
         for expected_token in expected_tokens {
             lexer.get_token(&mut token);
             assert_eq!(token, expected_token);
