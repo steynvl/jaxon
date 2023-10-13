@@ -319,3 +319,17 @@ impl<'a> Lexer<'a> {
         self.ch = self.bytes[self.index];
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_basic_get_token() {
+        let input = "relax".as_bytes();
+        let mut lexer = Lexer::new(input);
+        let mut token: Token = Token::Eof;
+        lexer.get_token(&mut token);
+        assert_eq!(token, Token::Relax);
+    }
+}
