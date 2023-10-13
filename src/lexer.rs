@@ -263,11 +263,6 @@ impl<'a> Lexer<'a> {
             if !(is_alphanum_or_lodash(&self.ch) && id_length < MAX_ID_LENGTH) {
                 break;
             }
-
-            if !self.has_next_char() {
-                id_length += 1;
-                break;
-            }
         }
 
         if is_alphanum_or_lodash(&self.ch) && id_length == MAX_ID_LENGTH {
