@@ -264,6 +264,7 @@ impl<'a> Lexer<'a> {
             }
 
             if !self.has_next_char() {
+                id_length += 1;
                 break;
             }
         }
