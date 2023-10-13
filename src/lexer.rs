@@ -356,4 +356,21 @@ mod tests {
             assert_eq!(token, expected_token);
         }
     }
+
+    #[test]
+    fn test_process_string_then_number_then_string() {
+        let input = "\"hello\" 42 \"World\"".as_bytes();
+        let mut lexer = Lexer::new(input);
+        let mut token: Token = Token::Eof;
+
+        let expected_tokens = vec![
+            Token::StringLiteral(String::from("hello")),
+            Token::Number(42),
+            Token::StringLiteral(String::from("World")),
+        ];
+        for expected_token in expected_tokens {
+            lexer.get_token(&mut token);
+            assert_eq!(token, expected_token);
+        }
+    }
 }
