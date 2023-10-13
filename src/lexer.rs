@@ -37,20 +37,16 @@ impl<'a> Lexer<'a> {
     pub fn get_token(&mut self, token: &mut Token) {
         self.skip_whitespace();
 
-        // remember token start
-        self.position.col = self.column_number;
-
-        if !self.has_next_char() {
-            *token = Token::Eof;
-            return;
-        }
-
         println!(
             "{} / {} [{}]",
             self.index,
             self.bytes.len(),
             self.bytes[self.index] as char
         );
+
+        // remember token start
+        self.position.col = self.column_number;
+
         if self.ch.is_ascii_alphabetic() || self.ch == b'_' {
             self.process_word(token);
         } else if self.ch.is_ascii_digit() {
@@ -126,26 +122,34 @@ impl<'a> Lexer<'a> {
                     }
                 }
                 b'>' => {
-                    self.next_char();
-                    if self.ch == b'=' {
-                        *token = Token::GreaterEqual;
-                        self.next_char();
-                    } else {
+                    if !self.has_next_char() {
                         *token = Token::GreaterThan;
+                    } else {
+                        self.next_char();
+                        if self.ch == b'=' {
+                            *token = Token::GreaterEqual;
+                            self.next_char();
+                        } else {
+                            *token = Token::GreaterThan;
+                        }
                     }
                 }
                 b'<' => {
-                    self.next_char();
-                    match self.ch {
-                        b'=' => {
-                            *token = Token::LessEqual;
-                            self.next_char();
+                    if !self.has_next_char() {
+                        *token = Token::LessThan;
+                    } else {
+                        self.next_char();
+                        match self.ch {
+                            b'=' => {
+                                *token = Token::LessEqual;
+                                self.next_char();
+                            }
+                            b'>' => {
+                                *token = Token::NotEqual;
+                                self.next_char();
+                            }
+                            _ => *token = Token::LessThan,
                         }
-                        b'>' => {
-                            *token = Token::NotEqual;
-                            self.next_char();
-                        }
-                        _ => *token = Token::LessThan,
                     }
                 }
                 _ => {
@@ -309,14 +313,13 @@ impl<'a> Lexer<'a> {
     }
 
     fn skip_whitespace(&mut self) {
-        while self.index < self.bytes.len() {
-            if self.bytes[self.index] == b' ' {
+        while self.has_next_char() {
+            if self.ch.is_ascii_whitespace() {
                 self.next_char();
             } else {
                 break;
             }
         }
-        self.ch = self.bytes[self.index];
     }
 }
 
@@ -331,5 +334,26 @@ mod tests {
         let mut token: Token = Token::Eof;
         lexer.get_token(&mut token);
         assert_eq!(token, Token::Relax);
+    }
+
+    #[test]
+    fn test_multiple_get_token_calls() {
+        let input = "if then and while < >".as_bytes();
+        let mut lexer = Lexer::new(input);
+        let mut token: Token = Token::Eof;
+
+        let expected_tokens = vec![
+            Token::If,
+            Token::Then,
+            Token::And,
+            Token::While,
+            Token::LessThan,
+            Token::GreaterThan,
+        ];
+
+        for expected_token in expected_tokens {
+            lexer.get_token(&mut token);
+            assert_eq!(token, expected_token);
+        }
     }
 }
