@@ -34,10 +34,16 @@ fn test_lexer() {
 
         let mut lexer = Lexer::new(source.as_bytes());
         let mut token: Token = Token::Eof;
-        while token != Token::Eof {
+        loop {
             lexer.get_token(&mut token);
             print!("{:?}  ", token);
+
+            if token == Token::Eof {
+                break;
+            }
         }
         println!();
+
+        break;
     }
 }

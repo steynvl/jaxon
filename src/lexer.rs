@@ -146,11 +146,15 @@ impl<'a> Lexer<'a> {
                 }
                 _ => {
                     self.position.col = self.column_number;
-                    // TODO: abort compile
-                    panic!(
-                        "illegal character '{}' (ASCII {})",
-                        self.ch as char, self.ch
-                    )
+                    if !self.has_next_char() {
+                        *token = Token::Eof;
+                    } else {
+                        // TODO: abort compile
+                        panic!(
+                            "illegal character '{}' (ASCII {})",
+                            self.ch as char, self.ch
+                        )
+                    }
                 }
             }
         }
