@@ -1,11 +1,7 @@
 use std::fs;
 
-use lexer::Lexer;
-use token::Token;
-
-mod error;
-mod lexer;
-mod token;
+use svlang::lexer::Lexer;
+use svlang::token::Token;
 
 fn main() {
     let source = fs::read_to_string("samples/hello.jaxon").expect("Could not read the file.");

@@ -1,4 +1,6 @@
 use std::{fs, io};
+use svlang::lexer::Lexer;
+use svlang::token::Token;
 
 fn get_lexer_test_files(path: &str) -> io::Result<Vec<String>> {
     let entries = fs::read_dir(path)?;
@@ -21,9 +23,21 @@ fn get_lexer_test_files(path: &str) -> io::Result<Vec<String>> {
 
 #[test]
 fn test_lexer() {
-    let lexer_test_files = get_lexer_test_files("tests/resources/lexer").unwrap();
+    let lexer_tests_dir = "tests/resources/lexer";
+    let lexer_test_files = get_lexer_test_files(lexer_tests_dir).unwrap();
     for file in lexer_test_files {
-        println!("{}", file)
-        // let source = fs::read_to_string(format!("samples/{}", file)).expect("Could not read the file.");
+        let source = fs::read_to_string(format!("{}/{}", lexer_tests_dir, file))
+            .expect("Could not read the file.");
+
+        println!("{}", file);
+        println!("{:?}", source);
+
+        let mut lexer = Lexer::new(source.as_bytes());
+        let mut token: Token = Token::Eof;
+        while token != Token::Eof {
+            lexer.get_token(&mut token);
+            print!("{:?}  ", token);
+        }
+        println!();
     }
 }
