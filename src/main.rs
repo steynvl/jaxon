@@ -9,19 +9,19 @@ fn main() {
     let mut lexer = Lexer::new(source.as_bytes());
     let mut token: Token = Token::Eof;
 
-    lexer.get_token(&mut token);
+    lexer.get_token(&mut token).unwrap();
     println!("{:?}", token);
     assert!(token == Token::Function);
 
-    lexer.get_token(&mut token);
+    lexer.get_token(&mut token).unwrap();
     println!("{:?}", token);
     assert!(token == Token::Id(String::from("name")));
 
-    lexer.get_token(&mut token);
+    lexer.get_token(&mut token).unwrap();
     println!("{:?}", token);
     assert!(token == Token::Number(1235));
 
-    lexer.get_token(&mut token);
+    lexer.get_token(&mut token).unwrap();
     println!("{:?}", token);
     assert!(token == Token::StringLiteral(String::from("string")))
 }

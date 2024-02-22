@@ -34,7 +34,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn get_token(&mut self, token: &mut Token) {
+    pub fn get_token(&mut self, token: &mut Token) -> Result<(), String> {
         self.skip_whitespace();
 
         println!(
@@ -48,20 +48,20 @@ impl<'a> Lexer<'a> {
         self.position.col = self.column_number;
 
         if self.ch.is_ascii_alphabetic() || self.ch == b'_' {
-            self.process_word(token);
+            self.process_word(token)?;
         } else if self.ch.is_ascii_digit() {
-            self.process_number(token);
+            self.process_number(token)?;
         } else {
             match self.ch {
                 b'"' => {
                     self.position.col = self.column_number;
                     self.next_char();
-                    self.process_string(token);
+                    self.process_string(token)?;
                 }
                 b'{' => {
                     self.next_char();
-                    self.skip_comment(token);
-                    self.get_token(token);
+                    self.skip_comment(token)?;
+                    self.get_token(token)?;
                 }
                 b']' => {
                     *token = Token::CloseBracket;
@@ -118,7 +118,7 @@ impl<'a> Lexer<'a> {
                         self.next_char();
                     } else {
                         self.position.col = self.column_number - 1;
-                        panic!("illegal character ':' (ASCII {})", b':')
+                        return Err(format!("illegal character ':' (ASCII {})", b':'));
                     }
                 }
                 b'>' => {
@@ -149,15 +149,15 @@ impl<'a> Lexer<'a> {
                     if !self.has_next_char() {
                         *token = Token::Eof;
                     } else {
-                        // TODO: abort compile
-                        panic!(
+                        return Err(format!(
                             "illegal character '{}' (ASCII {})",
-                            self.ch as char, self.ch
-                        )
+                            self.ch as char, self.ch,
+                        ));
                     }
                 }
             }
         }
+        Ok(())
     }
 
     fn next_char(&mut self) {
@@ -182,7 +182,7 @@ impl<'a> Lexer<'a> {
         self.index + 1 < self.bytes.len()
     }
 
-    fn process_number(&mut self, token: &mut Token) {
+    fn process_number(&mut self, token: &mut Token) -> Result<(), String> {
         let mut final_value = 0;
 
         self.position.col = self.column_number;
@@ -201,15 +201,15 @@ impl<'a> Lexer<'a> {
 
                 self.next_char();
             } else {
-                // TODO: abort compile
-                panic!("number too large");
+                return Err("number too large".to_string());
             }
         }
 
         *token = Token::Number(final_value);
+        Ok(())
     }
 
-    fn process_string(&mut self, token: &mut Token) {
+    fn process_string(&mut self, token: &mut Token) -> Result<(), String> {
         let mut string_literal = String::default();
 
         loop {
@@ -218,13 +218,16 @@ impl<'a> Lexer<'a> {
                 if self.has_next_char() {
                     self.next_char();
                 }
-                return;
+                return Ok(());
             }
 
             if !self.ch.is_ascii() {
                 // force token start
                 self.position.col = self.column_number;
-                panic!("non-printable character (ASCII {}) in string", self.ch);
+                return Err(format!(
+                    "non-printable character (ASCII {}) in string",
+                    self.ch
+                ));
             } else if self.ch == b'\\' {
                 self.next_char();
 
@@ -234,7 +237,10 @@ impl<'a> Lexer<'a> {
                     _ => {
                         // force token start
                         self.position.col = self.column_number;
-                        panic!("illegal escape code '{}' in string", self.ch as char)
+                        return Err(format!(
+                            "illegal escape code '{}' in string",
+                            self.ch as char
+                        ));
                     }
                 }
             }
@@ -248,11 +254,10 @@ impl<'a> Lexer<'a> {
             self.next_char();
         }
 
-        // TODO: abort compile
-        panic!("string not closed");
+        Err("string not closed".to_string())
     }
 
-    fn process_word(&mut self, token: &mut Token) {
+    fn process_word(&mut self, token: &mut Token) -> Result<(), String> {
         self.position.col = self.column_number;
 
         let start = self.index;
@@ -270,22 +275,22 @@ impl<'a> Lexer<'a> {
         }
 
         if is_alphanum_or_lodash(&self.ch) && id_length == MAX_ID_LENGTH {
-            // TODO: abort compile
-            panic!("identifier too long");
+            return Err("identifier too long".to_string());
         }
 
         let lexeme = match std::str::from_utf8(&self.bytes[start..start + id_length]) {
             Ok(value) => value,
-            Err(err) => panic!("Invalid UTF-8 sequence {}", err),
+            Err(err) => return Err(format!("Invalid UTF-8 sequence {}", err)),
         };
 
         match RESERVED_WORDS.binary_search_by_key(&lexeme, |(raw_str, _)| raw_str) {
             Ok(index) => *token = create_token_from_reserved_words_index(index),
             Err(_) => *token = Token::Id(String::from(lexeme)),
         };
+        Ok(())
     }
 
-    fn skip_comment(&mut self, token: &mut Token) {
+    fn skip_comment(&mut self, token: &mut Token) -> Result<(), String> {
         // remember the entire position
         self.position.col = self.column_number - 1;
 
@@ -294,10 +299,10 @@ impl<'a> Lexer<'a> {
         while self.has_next_char() {
             if self.ch == b'{' {
                 self.next_char();
-                self.skip_comment(token);
+                self.skip_comment(token)?;
             } else if self.ch == b'}' {
                 self.next_char();
-                return;
+                return Ok(());
             } else {
                 self.next_char();
             }
@@ -305,7 +310,7 @@ impl<'a> Lexer<'a> {
 
         // force line number of error reporting
         self.position = start_pos;
-        panic!("comment not closed");
+        Err("comment not closed".to_string())
     }
 
     fn skip_whitespace(&mut self) {
@@ -328,7 +333,7 @@ mod tests {
         let input = "relax".as_bytes();
         let mut lexer = Lexer::new(input);
         let mut token: Token = Token::Eof;
-        lexer.get_token(&mut token);
+        lexer.get_token(&mut token).unwrap();
         assert_eq!(token, Token::Relax);
     }
 
@@ -348,7 +353,7 @@ mod tests {
         ];
 
         for expected_token in expected_tokens {
-            lexer.get_token(&mut token);
+            lexer.get_token(&mut token).unwrap();
             assert_eq!(token, expected_token);
         }
     }
@@ -380,7 +385,7 @@ mod tests {
             Token::Semicolon,
         ];
         for expected_token in expected_tokens {
-            lexer.get_token(&mut token);
+            lexer.get_token(&mut token).unwrap();
             assert_eq!(token, expected_token);
         }
     }
@@ -397,7 +402,7 @@ mod tests {
             Token::StringLiteral(String::from("World")),
         ];
         for expected_token in expected_tokens {
-            lexer.get_token(&mut token);
+            lexer.get_token(&mut token).unwrap();
             assert_eq!(token, expected_token);
         }
     }
@@ -410,7 +415,7 @@ mod tests {
 
         let expected_tokens = vec![Token::If, Token::Boolean, Token::Then];
         for expected_token in expected_tokens {
-            lexer.get_token(&mut token);
+            lexer.get_token(&mut token).unwrap();
             assert_eq!(token, expected_token);
         }
     }
@@ -427,7 +432,7 @@ mod tests {
             Token::Do,
         ];
         for expected_token in expected_tokens {
-            lexer.get_token(&mut token);
+            lexer.get_token(&mut token).unwrap();
             assert_eq!(token, expected_token);
         }
     }
@@ -440,7 +445,7 @@ mod tests {
 
         let expected_tokens = vec![Token::If, Token::Then];
         for expected_token in expected_tokens {
-            lexer.get_token(&mut token);
+            lexer.get_token(&mut token).unwrap();
             assert_eq!(token, expected_token);
         }
     }
