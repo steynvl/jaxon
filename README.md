@@ -1,2 +1,2 @@
-# jaxon
-The Jaxon programming language boostrapped in Rust.
+# SVLang
+A toy programming language compiled in Rust and targets the JVM.
