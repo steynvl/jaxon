@@ -410,4 +410,21 @@ mod tests {
             assert_eq!(token, expected_token);
         }
     }
+
+    #[test]
+    fn test_process_word_with_underscore() {
+        let input = "while variable_name do".as_bytes();
+        let mut lexer = Lexer::new(input);
+        let mut token: Token = Token::Eof;
+
+        let expected_tokens = vec![
+            Token::While,
+            Token::Id(String::from("variable_name")),
+            Token::Do,
+        ];
+        for expected_token in expected_tokens {
+            lexer.get_token(&mut token);
+            assert_eq!(token, expected_token);
+        }
+    }
 }
