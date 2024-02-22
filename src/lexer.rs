@@ -427,4 +427,17 @@ mod tests {
             assert_eq!(token, expected_token);
         }
     }
+
+    #[test]
+    fn test_process_comment() {
+        let input = "if { this is a comment } then".as_bytes();
+        let mut lexer = Lexer::new(input);
+        let mut token: Token = Token::Eof;
+
+        let expected_tokens = vec![Token::If, Token::Then];
+        for expected_token in expected_tokens {
+            lexer.get_token(&mut token);
+            assert_eq!(token, expected_token);
+        }
+    }
 }
