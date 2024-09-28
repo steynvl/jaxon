@@ -27,7 +27,6 @@ fn convert_token_to_testable_string(token: &Token) -> String {
         Token::Id(s) => format!("Identifier: '{}'", s),
         Token::Number(n) => format!("Number: {}", n),
         Token::StringLiteral(s) => format!("String: \"{}\"", s),
-        Token::Remainder => "'rem'".to_string(),
         Token::Equal => "'='".to_string(),
         Token::GreaterEqual => "'>='".to_string(),
         Token::GreaterThan => "'>'".to_string(),
@@ -37,6 +36,10 @@ fn convert_token_to_testable_string(token: &Token) -> String {
         Token::Minus => "'-'".to_string(),
         Token::Or => "'or'".to_string(),
         Token::Plus => "'+'".to_string(),
+        Token::And => "'and'".to_string(),
+        Token::Divide => "'/'".to_string(),
+        Token::Multiply => "'*'".to_string(),
+        Token::Remainder => "'rem'".to_string(),
         _ => format!("'{:?}'", token).to_lowercase(),
     }
 }
