@@ -34,6 +34,9 @@ fn convert_token_to_testable_string(token: &Token) -> String {
         Token::LessEqual => "'<='".to_string(),
         Token::LessThan => "'<'".to_string(),
         Token::NotEqual => "'<>'".to_string(),
+        Token::Minus => "'-'".to_string(),
+        Token::Or => "'or'".to_string(),
+        Token::Plus => "'+'".to_string(),
         _ => format!("'{:?}'", token).to_lowercase(),
     }
 }
