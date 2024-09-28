@@ -21,6 +21,15 @@ fn get_lexer_test_files(path: &str) -> io::Result<Vec<String>> {
     Ok(file_names)
 }
 
+fn convert_token_to_testable_string(token: &Token) -> String {
+    match token {
+        Token::Id(s) => format!("Identifier: '{}'", s),
+        Token::Number(n) => format!("Number: {}", n),
+        Token::StringLiteral(s) => format!("String: \"{}\"", s),
+        _ => format!("'{:?}'", token),
+    }
+}
+
 #[test]
 fn test_lexer() {
     let lexer_tests_dir = "tests/resources/lexer";
@@ -38,6 +47,7 @@ fn test_lexer() {
         let std_out_file = format!("{}/report/{}.out.txt", lexer_tests_dir, file);
         let std_out = fs::read_to_string(&std_out_file)
             .expect(format!("Could not read the file: {}", std_out_file).as_str());
+        let std_out_lines: Vec<&str> = std_out.split("\n").collect();
 
         let std_err_file = format!("{}/report/{}.err.txt", lexer_tests_dir, file);
         let std_err = fs::read_to_string(&std_err_file)
@@ -46,14 +56,22 @@ fn test_lexer() {
         println!("-- START --");
         println!("{}", file);
         println!("{:?}", source);
-        println!("out: {:?}", std_out);
+        println!("out: {:?}", std_out_lines);
         println!("err: {:?}", std_err);
 
         let mut lexer = Lexer::new(source.as_bytes());
         let mut token: Token = Token::Eof;
+        let mut std_out_index = 0;
         loop {
-            lexer.get_token(&mut token).unwrap();
-            print!("{:?}  ", token);
+            if std_out_index < std_out_lines.len() {
+                let std_out_line = std_out_lines[std_out_index];
+                lexer.get_token(&mut token).unwrap();
+                println!("token  = {}", convert_token_to_testable_string(&token));
+                println!("stdout = {}", std_out_line);
+                // assert_eq!(format!("{:?}", token), std_out_line);
+            }
+
+            // print!("{:?}  ", token);
 
             if token == Token::Eof {
                 break;
