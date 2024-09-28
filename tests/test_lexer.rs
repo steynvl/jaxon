@@ -23,10 +23,18 @@ fn get_lexer_test_files(path: &str) -> io::Result<Vec<String>> {
 
 fn convert_token_to_testable_string(token: &Token) -> String {
     match token {
+        Token::Eof => "".to_string(),
         Token::Id(s) => format!("Identifier: '{}'", s),
         Token::Number(n) => format!("Number: {}", n),
         Token::StringLiteral(s) => format!("String: \"{}\"", s),
-        _ => format!("'{:?}'", token),
+        Token::Remainder => "'rem'".to_string(),
+        Token::Equal => "'='".to_string(),
+        Token::GreaterEqual => "'>='".to_string(),
+        Token::GreaterThan => "'>'".to_string(),
+        Token::LessEqual => "'<='".to_string(),
+        Token::LessThan => "'<'".to_string(),
+        Token::NotEqual => "'<>'".to_string(),
+        _ => format!("'{:?}'", token).to_lowercase(),
     }
 }
 
@@ -68,7 +76,8 @@ fn test_lexer() {
                 lexer.get_token(&mut token).unwrap();
                 println!("token  = {}", convert_token_to_testable_string(&token));
                 println!("stdout = {}", std_out_line);
-                // assert_eq!(format!("{:?}", token), std_out_line);
+                assert_eq!(convert_token_to_testable_string(&token), std_out_line);
+                std_out_index += 1;
             }
 
             // print!("{:?}  ", token);
