@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug, PartialEq)]
 pub enum Token {
     // end-of-file
@@ -61,6 +63,12 @@ pub enum Token {
     OpenBracket,
     OpenParenthesis,
     Semicolon,
+}
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 // the maximum length of an identifier
