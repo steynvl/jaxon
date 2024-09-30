@@ -40,6 +40,14 @@ fn convert_token_to_testable_string(token: &Token) -> String {
         Token::Divide => "'/'".to_string(),
         Token::Multiply => "'*'".to_string(),
         Token::Remainder => "'rem'".to_string(),
+        Token::CloseBracket => "']'".to_string(),
+        Token::CloseParenthesis => "')'".to_string(),
+        Token::Comma => "','".to_string(),
+        Token::Concatenate => "'&'".to_string(),
+        Token::Gets => "':='".to_string(),
+        Token::OpenBracket => "'['".to_string(),
+        Token::OpenParenthesis => "'('".to_string(),
+        Token::Semicolon => "';'".to_string(),
         _ => format!("'{:?}'", token).to_lowercase(),
     }
 }
