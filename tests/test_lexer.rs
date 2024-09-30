@@ -43,7 +43,7 @@ fn convert_token_to_testable_string(token: &Token) -> String {
         Token::CloseBracket => "']'".to_string(),
         Token::CloseParenthesis => "')'".to_string(),
         Token::Comma => "','".to_string(),
-        Token::Concatenate => "'&'".to_string(),
+        Token::Concatenate => "'.'".to_string(),
         Token::Gets => "':='".to_string(),
         Token::OpenBracket => "'['".to_string(),
         Token::OpenParenthesis => "'('".to_string(),
