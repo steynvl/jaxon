@@ -58,7 +58,7 @@ fn test_lexer() {
     let lexer_test_files = get_lexer_test_files(lexer_tests_dir).unwrap();
     for file in lexer_test_files {
         // Stop here (for now), so that test suite passes.
-        if file == "test109.svl" {
+        if file == "test110.svl" {
             break;
         }
 
@@ -87,17 +87,32 @@ fn test_lexer() {
         loop {
             if std_out_index < std_out_lines.len() {
                 let std_out_line = std_out_lines[std_out_index];
+
+                if std_out_line.is_empty() {
+                    std_out_index += 1;
+                    continue;
+                }
+
                 lexer.get_token(&mut token).unwrap();
                 println!("token  = {}", convert_token_to_testable_string(&token));
                 println!("stdout = {}", std_out_line);
                 assert_eq!(convert_token_to_testable_string(&token), std_out_line);
                 std_out_index += 1;
-            }
-
-            // print!("{:?}  ", token);
-
-            if token == Token::Eof {
-                break;
+            } else {
+                match lexer.get_token(&mut token) {
+                    Ok(_) => {
+                        if token == Token::Eof {
+                            break;
+                        }
+                        panic!("Unexpected token: {:?}", token);
+                    }
+                    Err(err) => {
+                        println!("SVLERROR = {}", err);
+                        println!("stderr  =  {}", std_err);
+                        assert!(std_err.contains(&err));
+                        break;
+                    }
+                }
             }
         }
         println!();
