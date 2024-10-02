@@ -118,7 +118,7 @@ impl<'a> Lexer<'a> {
                         self.next_char();
                     } else {
                         self.position.col = self.column_number - 1;
-                        return Err(format!("illegal character ':' (ASCII {})", b':'));
+                        return Err(format!("illegal character ':' (ASCII #{})", b':'));
                     }
                 }
                 b'>' => {
@@ -150,7 +150,7 @@ impl<'a> Lexer<'a> {
                         *token = Token::Eof;
                     } else {
                         return Err(format!(
-                            "illegal character '{}' (ASCII {})",
+                            "illegal character '{}' (ASCII #{})",
                             self.ch as char, self.ch,
                         ));
                     }

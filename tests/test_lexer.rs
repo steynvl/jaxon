@@ -58,7 +58,7 @@ fn test_lexer() {
     let lexer_test_files = get_lexer_test_files(lexer_tests_dir).unwrap();
     for file in lexer_test_files {
         // Stop here (for now), so that test suite passes.
-        if file == "test110.svl" {
+        if file == "test115.svl" {
             break;
         }
 
