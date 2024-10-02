@@ -109,6 +109,7 @@ fn test_lexer() {
                     Err(err) => {
                         println!("SVLERROR = {}", err);
                         println!("stderr  =  {}", std_err);
+                        // TODO: Once the lexer error includes the file name, line, and column we should do a direct comparison.
                         assert!(std_err.contains(&err));
                         break;
                     }
